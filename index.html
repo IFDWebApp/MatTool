@@ -1,11 +1,60 @@
 <!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Materials and Tools System</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14285a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Materials">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-512.png">
+<style>
+  html, body { margin: 0; height: 100%; background: #14285a; font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif; }
+  #app { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #eef2f9; padding-top: env(safe-area-inset-top); box-sizing: border-box; }
+  #splash { position: fixed; inset: 0; display: grid; place-items: center; color: #fff; text-align: center; background: linear-gradient(160deg, #0b1736, #2f4f8f); z-index: 2; transition: opacity .4s; }
+  #splash.hide { opacity: 0; pointer-events: none; }
+  #splash img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  #splash p { margin: 14px 0 0; font-weight: 600; }
+  #install { position: fixed; z-index: 5; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: none; border: 0; border-radius: 999px; padding: 10px 16px; font: 600 14px inherit;
+    color: #fff; background: linear-gradient(135deg, #0f1f45, #2f4f8f); box-shadow: 0 8px 22px rgba(0,0,0,.35); cursor: pointer; }
+  #hint { position: fixed; z-index: 5; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: none; padding: 12px 14px; border-radius: 14px; background: #fff; color: #14285a; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  #hint button { float: right; border: 0; background: none; font-size: 18px; color: #6b7a99; }
+  #offline { position: fixed; z-index: 4; top: 0; left: 0; right: 0; padding: 6px; text-align: center; font-size: 13px; background: #f2b01e; color: #1b2a4a; display: none; }
+</style>
+</head>
+<body>
+<div id="splash"><div><img src="icon-192.png" alt=""><p>Materials and Tools System</p></div></div>
+<div id="offline">ไม่มีอินเทอร์เน็ต — กำลังรอเชื่อมต่อ</div>
+<iframe id="app" title="Materials and Tools System" allow="clipboard-write; fullscreen"></iframe>
+<button id="install" type="button">📲 ติดตั้งแอป</button>
+<div id="hint"><button type="button" aria-label="ปิด" onclick="this.parentNode.style.display='none'">×</button>
+  iPhone/iPad: แตะปุ่ม <b>แชร์</b> แล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b></div>
+<script>
+  // ลิงก์เว็บแอป Apps Script (ถ้า Deploy เป็นลิงก์ใหม่ ให้แก้ตรงนี้)
+  var APP_URL = 'https://script.google.com/macros/s/AKfycbw4MTYLL2WkHLEYgEXiw3KExzlwS5CIj7LPT6mUGMTIey9RDzxKbvJodsxM6hZZ0cMYGA/exec';
 
-<html>
-   <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-      <base target="_top">
-   </head>
-   <body>
-      <iframe style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;border: 0;" src="https://script.google.com/macros/s/AKfycbwA6cn1AozQ0mlZymuA5ZstJe2QGngjBCcWVjpwbEDO1CCHWV47Tz18vWdIOtBgpIUL2Q/exec"></iframe>
-   </body>
+  var frame = document.getElementById('app'), splash = document.getElementById('splash');
+  if (/^https:\/\//.test(APP_URL)) { frame.src = APP_URL; }
+  else { splash.querySelector('p').textContent = 'ยังไม่ได้ตั้งค่า APP_URL ในไฟล์ index.html'; }
+  frame.addEventListener('load', function () { splash.classList.add('hide'); });
+  setTimeout(function () { splash.classList.add('hide'); }, 8000);
+
+  function setOffline() { document.getElementById('offline').style.display = navigator.onLine ? 'none' : 'block'; }
+  window.addEventListener('online', function () { setOffline(); if (!navigator.onLine) return; frame.src = frame.src; });
+  window.addEventListener('offline', setOffline); setOffline();
+
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform));
+  var btn = document.getElementById('install'), deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; if (!standalone) btn.style.display = 'block'; });
+  window.addEventListener('appinstalled', function () { btn.style.display = 'none'; });
+  btn.addEventListener('click', function () { if (!deferred) return; deferred.prompt(); deferred.userChoice.finally(function () { deferred = null; btn.style.display = 'none'; }); });
+  if (ios && !standalone) document.getElementById('hint').style.display = 'block';
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+</script>
+</body>
 </html>
