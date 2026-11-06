@@ -23,11 +23,24 @@
     color: #fff; background: linear-gradient(135deg, #0f1f45, #2f4f8f); box-shadow: 0 8px 22px rgba(0,0,0,.35); cursor: pointer; }
   #hint { position: fixed; z-index: 5; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: none; padding: 12px 14px; border-radius: 14px; background: #fff; color: #14285a; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
   #hint button { float: right; border: 0; background: none; font-size: 18px; color: #6b7a99; }
+  #auto { position: fixed; inset: 0; z-index: 9; display: none; place-items: center; text-align: center; padding: 24px; color: #fff; background: linear-gradient(160deg, #0b1736, #2f4f8f); }
+  #auto img { width: 110px; height: 110px; border-radius: 26px; box-shadow: 0 12px 34px rgba(0,0,0,.4); }
+  #auto h2 { margin: 16px 0 6px; font-size: 20px; }
+  #auto p { margin: 0 0 18px; opacity: .85; font-size: 14px; line-height: 1.5; }
+  #auto button { border: 0; border-radius: 999px; padding: 14px 28px; font: 700 16px inherit; color: #14285a; background: #fff; box-shadow: 0 10px 26px rgba(0,0,0,.35); cursor: pointer; }
+  #auto .skip { display: block; margin: 16px auto 0; background: none; color: #fff; box-shadow: none; font-weight: 500; font-size: 13px; opacity: .8; padding: 6px; }
   #offline { position: fixed; z-index: 4; top: 0; left: 0; right: 0; padding: 6px; text-align: center; font-size: 13px; background: #f2b01e; color: #1b2a4a; display: none; }
 </style>
 </head>
 <body>
 <div id="splash"><div><img src="icon-192.png" alt=""><p>Materials and Tools System</p></div></div>
+<div id="auto"><div>
+  <img src="icon-192.png" alt="">
+  <h2>ติดตั้งแอป Materials</h2>
+  <p id="autoMsg">แตะปุ่มด้านล่างเพื่อติดตั้งลงเครื่อง</p>
+  <button type="button" id="autoBtn">📲 ติดตั้งเดี๋ยวนี้</button>
+  <button type="button" class="skip" id="autoSkip">ข้าม ใช้งานในเบราว์เซอร์</button>
+</div></div>
 <div id="offline">ไม่มีอินเทอร์เน็ต — กำลังรอเชื่อมต่อ</div>
 <iframe id="app" title="Materials and Tools System" allow="clipboard-write; fullscreen"></iframe>
 <button id="install" type="button">📲 ติดตั้งแอป</button>
@@ -54,6 +67,33 @@
   window.addEventListener('appinstalled', function () { btn.style.display = 'none'; });
   btn.addEventListener('click', function () { if (!deferred) return; deferred.prompt(); deferred.userChoice.finally(function () { deferred = null; btn.style.display = 'none'; }); });
   if (ios && !standalone) document.getElementById('hint').style.display = 'block';
+  // เปิดมาจากปุ่ม "ติดตั้งแอป" (?install=1): แสดงหน้าจอติดตั้งแตะครั้งเดียว
+  if (/[?&]install=1/.test(location.search) && !standalone) {
+    var auto = document.getElementById('auto'), aBtn = document.getElementById('autoBtn'), aMsg = document.getElementById('autoMsg');
+    auto.style.display = 'grid'; splash.style.display = 'none';
+    document.getElementById('autoSkip').onclick = function () { auto.style.display = 'none'; };
+    if (ios) {
+      aMsg.innerHTML = 'iPhone/iPad ติดตั้งอัตโนมัติไม่ได้ — แตะปุ่ม <b>แชร์</b> ใน Safari<br>แล้วเลือก <b>เพิ่มไปยังหน้าจอโฮม</b>';
+      aBtn.style.display = 'none';
+    } else {
+      aBtn.addEventListener('click', function () {
+        if (deferred) { deferred.prompt(); deferred.userChoice.finally(function () { deferred = null; auto.style.display = 'none'; }); }
+        else { aMsg.innerHTML = 'เบราว์เซอร์ยังไม่พร้อม — แตะเมนู <b>⋮</b> แล้วเลือก <b>ติดตั้งแอป</b> / <b>เพิ่มลงในหน้าจอหลัก</b>'; }
+      });
+      setTimeout(function () { if (!deferred) aMsg.innerHTML = 'ถ้าไม่มีหน้าต่างติดตั้งขึ้น ให้แตะเมนู <b>⋮</b> แล้วเลือก <b>ติดตั้งแอป</b> / <b>เพิ่มลงในหน้าจอหลัก</b>'; }, 4000);
+    }
+  }
+  // เว็บแอปที่ฝังอยู่ข้างในส่งข้อความ 'mt-install' มาเมื่อผู้ใช้กดปุ่ม "ติดตั้งแอป" ในเมนูเฟือง
+  // การกดข้างใน iframe ถือเป็นการกดของผู้ใช้กับหน้านี้ด้วย จึงเรียกหน้าต่างติดตั้งได้ทันที (ข้อความนี้ทำได้แค่เรียกหน้าต่างติดตั้ง ไม่มีข้อมูลสำคัญ)
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || d.type !== 'mt-install' || !e.source) return;
+    var reply = { type: 'mt-reply', started: false, ios: ios, standalone: standalone };
+    if (!standalone && deferred) {
+      try { deferred.prompt(); reply.started = true; deferred.userChoice.finally(function () { deferred = null; btn.style.display = 'none'; }); } catch (err) {}
+    }
+    try { e.source.postMessage(reply, '*'); } catch (err) {}
+  });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
 </script>
 </body>
