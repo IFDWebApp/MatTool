@@ -1,17 +1,32 @@
 {
-  "name": "Materials and Tools System",
-  "short_name": "Materials",
-  "description": "ระบบค้นหาและติดตามสถานะคลังวัสดุอุปกรณ์",
-  "start_url": "./",
+  "name": "Shift System",
+  "short_name": "Shift System",
+  "description": "ระบบขอเปลี่ยนกะปฏิบัติงานออนไลน์ (IFD Pink Line)",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#14285a",
-  "theme_color": "#14285a",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "lang": "th",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
