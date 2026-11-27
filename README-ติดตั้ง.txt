@@ -11,7 +11,7 @@
 (ทางเลือกอื่น: Netlify Drop, Cloudflare Pages — ลากโฟลเดอร์นี้ไปวางได้เลย)
 
 ลิงก์ Apps Script ที่ฝังอยู่ใน index.html (บรรทัด iframe src=...) คือ
- https://script.google.com/macros/s/AKfycbxkaa9l7UBr9aC1jufNn33VuUs1r0_EvHUCRWczsFhv3tEhXD6kxNcP1PlebT4-eFYzcw/exec
+ https://script.google.com/macros/s/AKfycbxunBkbEMDxRQqLOVrcZDr_oFosRZk6Oezrq5UetPs_2GwjVNJZ0vufZQ17Wz0iGWPB/exec
 ถ้า Deploy ใหม่เป็น "ลิงก์ใหม่" (New deployment) ให้แก้บรรทัดนั้น แต่ถ้าใช้ Manage deployments → Edit → New version ลิงก์เดิมไม่เปลี่ยน
 
 วิธีติดตั้งบนมือถือ (ใช้ลิงก์ GitHub Pages ข้างบน)
